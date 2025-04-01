@@ -62,6 +62,7 @@ import org.slf4j.LoggerFactory;
 
 import static com.linkedin.kafka.cruisecontrol.KafkaCruiseControlUtils.LOAD_MONITOR_SENSOR;
 import static com.linkedin.kafka.cruisecontrol.config.constants.MonitorConfig.SKIP_LOADING_SAMPLES_CONFIG;
+import static com.linkedin.kafka.cruisecontrol.detector.AnomalyDetectorUtils.MAX_METADATA_WAIT_MS;
 import static com.linkedin.kafka.cruisecontrol.monitor.MonitorUtils.getRackHandleNull;
 import static com.linkedin.kafka.cruisecontrol.monitor.MonitorUtils.getReplicaPlacementInfo;
 import static com.linkedin.kafka.cruisecontrol.monitor.MonitorUtils.populatePartitionLoad;
@@ -81,6 +82,7 @@ public class LoadMonitor {
   // Metadata TTL is set based on experience -- i.e. a short TTL with large metadata may cause excessive load on brokers.
   private static final long METADATA_TTL = TimeUnit.SECONDS.toMillis(10);
   private static final long METADATA_REFRESH_BACKOFF = TimeUnit.SECONDS.toMillis(5);
+  private static final long METADATA_REFRESH_BACKOFF_MAX = TimeUnit.SECONDS.toMillis(60);
   public static final String KAFKA_ADMIN_CLIENT_OBJECT_CONFIG = "kafka.admin.client.object";
   // The maximum time allowed to make a state update. If the state value cannot be updated in time it will be invalidated.
   // TODO: Make this configurable.
@@ -124,6 +126,7 @@ public class LoadMonitor {
     this(config,
          new MetadataClient(config,
                             new Metadata(METADATA_REFRESH_BACKOFF,
+                                         METADATA_REFRESH_BACKOFF_MAX,
                                          config.getLong(MonitorConfig.METADATA_MAX_AGE_MS_CONFIG),
                                          new LogContext(),
                                          new ClusterResourceListeners()),
@@ -196,6 +199,12 @@ public class LoadMonitor {
     // The cluster has partitions with ISR > replicas (0: No such partitions, 1: Has such partitions)
     dropwizardMetricRegistry.register(MetricRegistry.name(LOAD_MONITOR_SENSOR, "has-partitions-with-isr-greater-than-replicas"),
                                       (Gauge<Integer>) () -> MonitorUtils.hasPartitionsWithIsrGreaterThanReplicas(kafkaCluster()) ? 1 : 0);
+    dropwizardMetricRegistry.register(MetricRegistry.name(LOAD_MONITOR_SENSOR, "dead-brokers-with-replicas"),
+                                      (Gauge<Integer>) () -> deadBrokersWithReplicas(MAX_METADATA_WAIT_MS).size());
+    dropwizardMetricRegistry.register(MetricRegistry.name(LOAD_MONITOR_SENSOR, "brokers-with-replicas"),
+                                      (Gauge<Integer>) () -> brokersWithReplicas(MAX_METADATA_WAIT_MS).size());
+    dropwizardMetricRegistry.register(MetricRegistry.name(LOAD_MONITOR_SENSOR, "brokers-with-offline-replicas"),
+                                      (Gauge<Integer>) () -> brokersWithOfflineReplicas(MAX_METADATA_WAIT_MS).size());
   }
 
   /**
@@ -495,6 +504,7 @@ public class LoadMonitor {
     MetricSampleAggregationResult<String, PartitionEntity> partitionMetricSampleAggregationResult =
         _partitionMetricSampleAggregator.aggregate(cluster, from, to, requirements, operationProgress);
     Map<PartitionEntity, ValuesAndExtrapolations> partitionValuesAndExtrapolations = partitionMetricSampleAggregationResult.valuesAndExtrapolations();
+    LOG.info("Fetched {} partition values and extrapolations from aggregated metrics", partitionValuesAndExtrapolations.size());
     GeneratingClusterModel step = new GeneratingClusterModel(partitionValuesAndExtrapolations.size());
     operationProgress.addStep(step);
 

@@ -13,8 +13,8 @@ import com.linkedin.kafka.cruisecontrol.executor.strategy.PrioritizeOneAboveMinI
 import com.linkedin.kafka.cruisecontrol.executor.strategy.PrioritizeSmallReplicaMovementStrategy;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
-import kafka.server.KafkaConfig;
 import org.apache.kafka.common.config.ConfigDef;
+import org.apache.kafka.server.config.ZkConfigs;
 
 import static com.linkedin.kafka.cruisecontrol.servlet.parameters.ParameterUtils.REASON_PARAM;
 import static org.apache.kafka.common.config.ConfigDef.Range.atLeast;
@@ -29,9 +29,9 @@ public final class ExecutorConfig {
   /**
    * <code>zookeeper.connect</code>
    */
-  public static final String ZOOKEEPER_CONNECT_CONFIG = KafkaConfig.ZkConnectProp();
+  public static final String ZOOKEEPER_CONNECT_CONFIG = ZkConfigs.ZK_CONNECT_CONFIG;
   public static final String DEFAULT_ZOOKEEPER_CONNECT = null;
-  public static final String ZOOKEEPER_CONNECT_DOC = KafkaConfig.ZkConnectDoc();
+  public static final String ZOOKEEPER_CONNECT_DOC = ZkConfigs.ZK_CONNECT_DOC;
 
   /**
    * <code>zookeeper.security.enabled</code>
@@ -43,100 +43,100 @@ public final class ExecutorConfig {
   /**
    * <code>zookeeper.ssl.client.enable</code>
    */
-  public static final String ZOOKEEPER_SSL_CLIENT_ENABLE_CONFIG = KafkaConfig.ZkSslClientEnableProp();
+  public static final String ZOOKEEPER_SSL_CLIENT_ENABLE_CONFIG = ZkConfigs.ZK_SSL_CLIENT_ENABLE_CONFIG;
   public static final boolean DEFAULT_ZOOKEEPER_SSL_CLIENT_ENABLE = false;
-  public static final String ZOOKEEPER_SSL_CLIENT_ENABLE_DOC = KafkaConfig.ZkSslClientEnableDoc();
+  public static final String ZOOKEEPER_SSL_CLIENT_ENABLE_DOC = ZkConfigs.ZK_SSL_CLIENT_ENABLE_DOC;
 
   /**
    * <code>zookeeper.clientCnxnSocket</code>
    */
-  public static final String ZOOKEEPER_SSL_CNXN_SOCKET_CONFIG = KafkaConfig.ZkClientCnxnSocketProp();
+  public static final String ZOOKEEPER_SSL_CNXN_SOCKET_CONFIG = ZkConfigs.ZK_CLIENT_CNXN_SOCKET_CONFIG;
   public static final String DEFAULT_ZOOKEEPER_SSL_CNXN_SOCKET = null;
-  public static final String ZOOKEEPER_SSL_CNXN_SOCKET_DOC = KafkaConfig.ZkClientCnxnSocketDoc();
+  public static final String ZOOKEEPER_SSL_CNXN_SOCKET_DOC = ZkConfigs.ZK_CLIENT_CNXN_SOCKET_DOC;
 
   /**
    * <code>zookeeper.ssl.keystore.location</code>
    */
-  public static final String ZOOKEEPER_SSL_KEYSTORE_LOCATION_CONFIG = KafkaConfig.ZkSslKeyStoreLocationProp();
+  public static final String ZOOKEEPER_SSL_KEYSTORE_LOCATION_CONFIG = ZkConfigs.ZK_SSL_KEY_STORE_LOCATION_CONFIG;
   public static final String DEFAULT_ZOOKEEPER_SSL_KEYSTORE_LOCATION = null;
-  public static final String ZOOKEEPER_SSL_KEYSTORE_LOCATION_DOC = KafkaConfig.ZkSslKeyStoreLocationDoc();
+  public static final String ZOOKEEPER_SSL_KEYSTORE_LOCATION_DOC = ZkConfigs.ZK_SSL_KEY_STORE_LOCATION_DOC;
 
   /**
    * <code>zookeeper.ssl.keystore.password</code>
    */
-  public static final String ZOOKEEPER_SSL_KEYSTORE_PASSWORD_CONFIG = KafkaConfig.ZkSslKeyStorePasswordProp();
+  public static final String ZOOKEEPER_SSL_KEYSTORE_PASSWORD_CONFIG = ZkConfigs.ZK_SSL_KEY_STORE_PASSWORD_CONFIG;
   public static final String DEFAULT_ZOOKEEPER_SSL_KEYSTORE_PASSWORD = null;
-  public static final String ZOOKEEPER_SSL_KEYSTORE_PASSWORD_DOC = KafkaConfig.ZkSslKeyStorePasswordDoc();
+  public static final String ZOOKEEPER_SSL_KEYSTORE_PASSWORD_DOC = ZkConfigs.ZK_SSL_KEY_STORE_PASSWORD_DOC;
 
   /**
    * <code>zookeeper.ssl.keystore.type</code>
    */
-  public static final String ZOOKEEPER_SSL_KEYSTORE_TYPE_CONFIG = KafkaConfig.ZkSslKeyStoreTypeProp();
+  public static final String ZOOKEEPER_SSL_KEYSTORE_TYPE_CONFIG = ZkConfigs.ZK_SSL_KEY_STORE_TYPE_CONFIG;
   public static final String DEFAULT_ZOOKEEPER_SSL_KEYSTORE_TYPE = null;
-  public static final String ZOOKEEPER_SSL_KEYSTORE_TYPE_DOC = KafkaConfig.ZkSslKeyStoreTypeDoc();
+  public static final String ZOOKEEPER_SSL_KEYSTORE_TYPE_DOC = ZkConfigs.ZK_SSL_KEY_STORE_TYPE_DOC;
 
   /**
    * <code>zookeeper.ssl.truststore.location</code>
    */
-  public static final String ZOOKEEPER_SSL_TRUSTSTORE_LOCATION_CONFIG = KafkaConfig.ZkSslTrustStoreLocationProp();
+  public static final String ZOOKEEPER_SSL_TRUSTSTORE_LOCATION_CONFIG = ZkConfigs.ZK_SSL_TRUST_STORE_LOCATION_CONFIG;
   public static final String DEFAULT_ZOOKEEPER_SSL_TRUSTSTORE_LOCATION = null;
-  public static final String ZOOKEEPER_SSL_TRUSTSTORE_LOCATION_DOC = KafkaConfig.ZkSslTrustStoreLocationDoc();
+  public static final String ZOOKEEPER_SSL_TRUSTSTORE_LOCATION_DOC = ZkConfigs.ZK_SSL_TRUST_STORE_LOCATION_DOC;
 
   /**
    * <code>zookeeper.ssl.truststore.password</code>
    */
-  public static final String ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD_CONFIG = KafkaConfig.ZkSslTrustStorePasswordProp();
+  public static final String ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD_CONFIG = ZkConfigs.ZK_SSL_TRUST_STORE_PASSWORD_CONFIG;
   public static final String DEFAULT_ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD = null;
-  public static final String ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD_DOC = KafkaConfig.ZkSslTrustStorePasswordDoc();
+  public static final String ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD_DOC = ZkConfigs.ZK_SSL_TRUST_STORE_PASSWORD_DOC;
 
   /**
    * <code>zookeeper.ssl.truststore.type</code>
    */
-  public static final String ZOOKEEPER_SSL_TRUSTSTORE_TYPE_CONFIG = KafkaConfig.ZkSslTrustStoreTypeProp();
+  public static final String ZOOKEEPER_SSL_TRUSTSTORE_TYPE_CONFIG = ZkConfigs.ZK_SSL_TRUST_STORE_TYPE_CONFIG;
   public static final String DEFAULT_ZOOKEEPER_SSL_TRUSTSTORE_TYPE = null;
-  public static final String ZOOKEEPER_SSL_TRUSTSTORE_TYPE_DOC = KafkaConfig.ZkSslTrustStoreTypeDoc();
+  public static final String ZOOKEEPER_SSL_TRUSTSTORE_TYPE_DOC = ZkConfigs.ZK_SSL_TRUST_STORE_TYPE_DOC;
 
   /**
    * <code>zookeeper.ssl.protocol</code>
    */
-  public static final String ZOOKEEPER_SSL_PROTOCOL_CONFIG = KafkaConfig.ZkSslProtocolProp();
-  public static final String DEFAULT_ZOOKEEPER_SSL_PROTOCOL = "TLSv1.2";
-  public static final String ZOOKEEPER_SSL_PROTOCOL_DOC = KafkaConfig.ZkSslProtocolDoc();
+  public static final String ZOOKEEPER_SSL_PROTOCOL_CONFIG = ZkConfigs.ZK_SSL_PROTOCOL_CONFIG;
+  public static final String DEFAULT_ZOOKEEPER_SSL_PROTOCOL = ZkConfigs.ZK_SSL_PROTOCOL;
+  public static final String ZOOKEEPER_SSL_PROTOCOL_DOC = ZkConfigs.ZK_SSL_PROTOCOL_DOC;
 
   /**
    * <code>zookeeper.ssl.enabled.protocols</code>
    */
-  public static final String ZOOKEEPER_SSL_ENABLED_PROTOCOLS_CONFIG = KafkaConfig.ZkSslEnabledProtocolsProp();
+  public static final String ZOOKEEPER_SSL_ENABLED_PROTOCOLS_CONFIG = ZkConfigs.ZK_SSL_ENABLED_PROTOCOLS_CONFIG;
   public static final String DEFAULT_ZOOKEEPER_SSL_ENABLED_PROTOCOLS = null;
-  public static final String ZOOKEEPER_SSL_ENABLED_PROTOCOLS_DOC = KafkaConfig.ZkSslEnabledProtocolsDoc();
+  public static final String ZOOKEEPER_SSL_ENABLED_PROTOCOLS_DOC = ZkConfigs.ZK_SSL_ENABLED_PROTOCOLS_DOC;
 
   /**
    * <code>zookeeper.ssl.cipher.suites</code>
    */
-  public static final String ZOOKEEPER_SSL_CIPHER_SUITES_CONFIG = KafkaConfig.ZkSslCipherSuitesProp();
+  public static final String ZOOKEEPER_SSL_CIPHER_SUITES_CONFIG = ZkConfigs.ZK_SSL_CIPHER_SUITES_CONFIG;
   public static final String DEFAULT_ZOOKEEPER_SSL_CIPHER_SUITES = null;
-  public static final String ZOOKEEPER_SSL_CIPHER_SUITES_DOC = KafkaConfig.ZkSslCipherSuitesDoc();
+  public static final String ZOOKEEPER_SSL_CIPHER_SUITES_DOC = ZkConfigs.ZK_SSL_CIPHER_SUITES_DOC;
 
   /**
    * <code>zookeeper.ssl.endpoint.identification.algorithm</code>
    */
-  public static final String ZOOKEEPER_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG = KafkaConfig.ZkSslEndpointIdentificationAlgorithmProp();
+  public static final String ZOOKEEPER_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG = ZkConfigs.ZK_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG;
   public static final String DEFAULT_ZOOKEEPER_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM = "HTTPS";
-  public static final String ZOOKEEPER_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_DOC = KafkaConfig.ZkSslEndpointIdentificationAlgorithmDoc();
+  public static final String ZOOKEEPER_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_DOC = ZkConfigs.ZK_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_DOC;
 
   /**
    * <code>zookeeper.ssl.crl.enable</code>
    */
-  public static final String ZOOKEEPER_SSL_CRL_ENABLE_CONFIG = KafkaConfig.ZkSslCrlEnableProp();
+  public static final String ZOOKEEPER_SSL_CRL_ENABLE_CONFIG = ZkConfigs.ZK_SSL_CRL_ENABLE_CONFIG;
   public static final boolean DEFAULT_ZOOKEEPER_SSL_CRL_ENABLE = false;
-  public static final String ZOOKEEPER_SSL_CRL_ENABLE_DOC = KafkaConfig.ZkSslCrlEnableDoc();
+  public static final String ZOOKEEPER_SSL_CRL_ENABLE_DOC = ZkConfigs.ZK_SSL_CRL_ENABLE_DOC;
 
   /**
    * <code>zookeeper.ssl.ocsp.enable</code>
    */
-  public static final String ZOOKEEPER_SSL_OCSP_ENABLE_CONFIG = KafkaConfig.ZkSslOcspEnableProp();
+  public static final String ZOOKEEPER_SSL_OCSP_ENABLE_CONFIG = ZkConfigs.ZK_SSL_OCSP_ENABLE_CONFIG;
   public static final boolean DEFAULT_ZOOKEEPER_SSL_OCSP_ENABLE = false;
-  public static final String ZOOKEEPER_SSL_OCSP_ENABLE_DOC = KafkaConfig.ZkSslOcspEnableDoc();
+  public static final String ZOOKEEPER_SSL_OCSP_ENABLE_DOC = ZkConfigs.ZK_SSL_OCSP_ENABLE_DOC;
 
   /**
    * <code>num.concurrent.partition.movements.per.broker</code>
@@ -166,6 +166,15 @@ public final class ExecutorConfig {
   public static final String NUM_CONCURRENT_LEADER_MOVEMENTS_DOC = "The maximum number of leader "
       + "movements the executor will take as one batch. This is mainly because the ZNode has a 1 MB size upper limit. And it "
       + "will also reduce the controller burden.";
+
+  /**
+   * <code>num.concurrent.leader.movements.per.broker</code>
+   */
+  public static final String NUM_CONCURRENT_LEADER_MOVEMENTS_PER_BROKER_CONFIG = "num.concurrent.leader.movements.per.broker";
+  public static final int DEFAULT_NUM_CONCURRENT_LEADER_MOVEMENTS_PER_BROKER = 250;
+  public static final String NUM_CONCURRENT_LEADER_MOVEMENTS_PER_BROKER_DOC = "The initial maximum number of leader "
+      + "movements the executor will take for a broker as one batch. This is to avoid overwhelming the broker by LeaderAndIsr requests."
+      + "It cannot be greater than num.concurrent.leader.movements.";
 
   /**
    * <code>max.num.cluster.movements</code>
@@ -352,6 +361,17 @@ public final class ExecutorConfig {
       + "It cannot be (1) smaller than num.concurrent.leader.movements and (2) greater than max.num.cluster.movements.";
 
   /**
+   * <code>concurrency.adjuster.max.leadership.movements.per.broker</code>
+   */
+  public static final String CONCURRENCY_ADJUSTER_MAX_LEADERSHIP_MOVEMENTS_PER_BROKER_CONFIG =
+      "concurrency.adjuster.max.leadership.movements.per.broker";
+  public static final int DEFAULT_CONCURRENCY_ADJUSTER_MAX_LEADERSHIP_MOVEMENTS_PER_BROKER = 500;
+  public static final String CONCURRENCY_ADJUSTER_MAX_LEADERSHIP_MOVEMENTS_PER_BROKER_DOC = "The maximum number of leadership movements "
+      + "the concurrency auto adjustment will allow the executor to perform on a broker in one batch to avoid overwhelming the broker. "
+      + "It cannot be (1) smaller than num.concurrent.leader.movements.per.broker and "
+      + "(2) greater than concurrency.adjuster.max.leadership.movements.";
+
+  /**
    * <code>concurrency.adjuster.min.partition.movements.per.broker</code>
    */
   public static final String CONCURRENCY_ADJUSTER_MIN_PARTITION_MOVEMENTS_PER_BROKER_CONFIG =
@@ -372,6 +392,16 @@ public final class ExecutorConfig {
       + " It cannot be greater than num.concurrent.leader.movements.";
 
   /**
+   * <code>concurrency.adjuster.min.leadership.movements.per.broker</code>
+   */
+  public static final String CONCURRENCY_ADJUSTER_MIN_LEADERSHIP_MOVEMENTS_PER_BROKER_CONFIG =
+      "concurrency.adjuster.min.leadership.movements.per.broker";
+  public static final int DEFAULT_CONCURRENCY_ADJUSTER_MIN_LEADERSHIP_MOVEMENTS_PER_BROKER = 25;
+  public static final String CONCURRENCY_ADJUSTER_MIN_LEADERSHIP_MOVEMENTS_PER_BROKER_DOC = "The minimum number of leadership movements "
+      + "the concurrency auto adjustment will allow the executor to perform for a broker in one batch to avoid an unacceptable execution pace."
+      + " It cannot be greater than num.concurrent.leader.movements.per.broker.";
+
+  /**
    * <code>concurrency.adjuster.inter.broker.replica.enabled</code>
    */
   public static final String CONCURRENCY_ADJUSTER_INTER_BROKER_REPLICA_ENABLED_CONFIG = "concurrency.adjuster.inter.broker.replica.enabled";
@@ -385,6 +415,15 @@ public final class ExecutorConfig {
   public static final String CONCURRENCY_ADJUSTER_LEADERSHIP_ENABLED_CONFIG = "concurrency.adjuster.leadership.enabled";
   public static final boolean DEFAULT_CONCURRENCY_ADJUSTER_LEADERSHIP_ENABLED = false;
   public static final String CONCURRENCY_ADJUSTER_LEADERSHIP_ENABLED_DOC = "Enable concurrency adjuster for leadership reassignments.";
+
+  /**
+   * <code>concurrency.adjuster.leadership.per.broker.enabled</code>
+   */
+  public static final String CONCURRENCY_ADJUSTER_LEADERSHIP_PER_BROKER_ENABLED_CONFIG =
+      "concurrency.adjuster.leadership.per.broker.enabled";
+  public static final boolean DEFAULT_CONCURRENCY_ADJUSTER_LEADERSHIP_PER_BROKER_ENABLED = false;
+  public static final String CONCURRENCY_ADJUSTER_LEADERSHIP_PER_BROKER_ENABLED_DOC = "Enable concurrency adjuster for "
+      + "per broker leadership reassignments.";
 
   /**
    * <code>concurrency.adjuster.limit.log.flush.time.ms</code>
@@ -454,6 +493,16 @@ public final class ExecutorConfig {
       + "considered metrics are within the concurrency adjuster limit.";
 
   /**
+   * <code>concurrency.adjuster.additive.increase.leadership.per.broker</code>
+   */
+  public static final String CONCURRENCY_ADJUSTER_ADDITIVE_INCREASE_LEADERSHIP_PER_BROKER_CONFIG
+      = "concurrency.adjuster.additive.increase.leadership.per.broker";
+  public static final int DEFAULT_CONCURRENCY_ADJUSTER_ADDITIVE_INCREASE_LEADERSHIP_PER_BROKER = 25;
+  public static final String CONCURRENCY_ADJUSTER_ADDITIVE_INCREASE_LEADERSHIP_PER_BROKER_DOC = "The fixed number by which the "
+      + "per broker concurrency cap on leadership movements will be increased by the concurrency adjuster (if enabled) when all "
+      + "considered metrics are within the concurrency adjuster limit.";
+
+  /**
    * <code>concurrency.adjuster.multiplicative.decrease.inter.broker.replica</code>
    */
   public static final String CONCURRENCY_ADJUSTER_MULTIPLICATIVE_DECREASE_INTER_BROKER_REPLICA_CONFIG
@@ -472,6 +521,26 @@ public final class ExecutorConfig {
   public static final String CONCURRENCY_ADJUSTER_MULTIPLICATIVE_DECREASE_LEADERSHIP_DOC = "The fixed number by which the "
       + "concurrency cap on leadership movements will be divided by the concurrency adjuster (if enabled) when any "
       + "considered metric exceeds the concurrency adjuster limit.";
+
+  /**
+   * <code>concurrency.adjuster.multiplicative.decrease.leadership.per.broker</code>
+   */
+  public static final String CONCURRENCY_ADJUSTER_MULTIPLICATIVE_DECREASE_LEADERSHIP_PER_BROKER_CONFIG
+      = "concurrency.adjuster.multiplicative.decrease.leadership.per.broker";
+  public static final int DEFAULT_CONCURRENCY_ADJUSTER_MULTIPLICATIVE_DECREASE_LEADERSHIP_PER_BROKER = 2;
+  public static final String CONCURRENCY_ADJUSTER_MULTIPLICATIVE_DECREASE_LEADERSHIP_PER_BROKER_DOC = "The fixed number by which the "
+      + "per broker concurrency cap on leadership movements will be divided by the concurrency adjuster (if enabled) when any "
+      + "considered metric exceeds the concurrency adjuster limit.";
+
+  /**
+   * <code>min.num.brokers.violate.metric.limit.to.decrease.cluster.concurrency</code>
+   */
+  public static final String MIN_NUM_BROKERS_VIOLATE_METRIC_LIMIT_TO_DECREASE_CLUSTER_CONCURRENCY_CONFIG
+      = "min.num.brokers.violate.metric.limit.to.decrease.cluster.concurrency";
+  public static final int DEFAULT_MIN_NUM_BROKERS_VIOLATE_METRIC_LIMIT_TO_DECREASE_CLUSTER_CONCURRENCY = 2;
+  public static final String MIN_NUM_BROKERS_VIOLATE_METRIC_LIMIT_TO_DECREASE_CLUSTER_CONCURRENCY_DOC =
+      "The minimum number of brokers with metrics violating concurrency adjuster limits that can lead to "
+          + "cluster concurrency decrease.";
 
   /**
    * <code>list.partition.reassignment.timeout.ms</code>
@@ -675,6 +744,12 @@ public final class ExecutorConfig {
                             atLeast(1),
                             ConfigDef.Importance.MEDIUM,
                             NUM_CONCURRENT_LEADER_MOVEMENTS_DOC)
+                    .define(NUM_CONCURRENT_LEADER_MOVEMENTS_PER_BROKER_CONFIG,
+                            ConfigDef.Type.INT,
+                            DEFAULT_NUM_CONCURRENT_LEADER_MOVEMENTS_PER_BROKER,
+                            atLeast(1),
+                            ConfigDef.Importance.MEDIUM,
+                            NUM_CONCURRENT_LEADER_MOVEMENTS_PER_BROKER_DOC)
                     .define(MAX_NUM_CLUSTER_MOVEMENTS_CONFIG,
                             ConfigDef.Type.INT,
                             DEFAULT_MAX_NUM_CLUSTER_MOVEMENTS_CONFIG,
@@ -784,6 +859,12 @@ public final class ExecutorConfig {
                             atLeast(1),
                             ConfigDef.Importance.LOW,
                             CONCURRENCY_ADJUSTER_MAX_LEADERSHIP_MOVEMENTS_DOC)
+                    .define(CONCURRENCY_ADJUSTER_MAX_LEADERSHIP_MOVEMENTS_PER_BROKER_CONFIG,
+                            ConfigDef.Type.INT,
+                            DEFAULT_CONCURRENCY_ADJUSTER_MAX_LEADERSHIP_MOVEMENTS_PER_BROKER,
+                            atLeast(1),
+                            ConfigDef.Importance.LOW,
+                            CONCURRENCY_ADJUSTER_MAX_LEADERSHIP_MOVEMENTS_PER_BROKER_DOC)
                     .define(CONCURRENCY_ADJUSTER_MIN_PARTITION_MOVEMENTS_PER_BROKER_CONFIG,
                             ConfigDef.Type.INT,
                             DEFAULT_CONCURRENCY_ADJUSTER_MIN_PARTITION_MOVEMENTS_PER_BROKER,
@@ -796,6 +877,12 @@ public final class ExecutorConfig {
                             atLeast(1),
                             ConfigDef.Importance.LOW,
                             CONCURRENCY_ADJUSTER_MIN_LEADERSHIP_MOVEMENTS_DOC)
+                    .define(CONCURRENCY_ADJUSTER_MIN_LEADERSHIP_MOVEMENTS_PER_BROKER_CONFIG,
+                            ConfigDef.Type.INT,
+                            DEFAULT_CONCURRENCY_ADJUSTER_MIN_LEADERSHIP_MOVEMENTS_PER_BROKER,
+                            atLeast(1),
+                            ConfigDef.Importance.LOW,
+                            CONCURRENCY_ADJUSTER_MIN_LEADERSHIP_MOVEMENTS_PER_BROKER_DOC)
                     .define(CONCURRENCY_ADJUSTER_INTER_BROKER_REPLICA_ENABLED_CONFIG,
                             ConfigDef.Type.BOOLEAN,
                             DEFAULT_CONCURRENCY_ADJUSTER_INTER_BROKER_REPLICA_ENABLED,
@@ -806,6 +893,11 @@ public final class ExecutorConfig {
                             DEFAULT_CONCURRENCY_ADJUSTER_LEADERSHIP_ENABLED,
                             ConfigDef.Importance.HIGH,
                             CONCURRENCY_ADJUSTER_LEADERSHIP_ENABLED_DOC)
+                    .define(CONCURRENCY_ADJUSTER_LEADERSHIP_PER_BROKER_ENABLED_CONFIG,
+                            ConfigDef.Type.BOOLEAN,
+                            DEFAULT_CONCURRENCY_ADJUSTER_LEADERSHIP_PER_BROKER_ENABLED,
+                            ConfigDef.Importance.HIGH,
+                            CONCURRENCY_ADJUSTER_LEADERSHIP_PER_BROKER_ENABLED_DOC)
                     .define(CONCURRENCY_ADJUSTER_LIMIT_LOG_FLUSH_TIME_MS_CONFIG,
                             ConfigDef.Type.DOUBLE,
                             DEFAULT_CONCURRENCY_ADJUSTER_LIMIT_LOG_FLUSH_TIME_MS,
@@ -848,6 +940,12 @@ public final class ExecutorConfig {
                             atLeast(1),
                             ConfigDef.Importance.LOW,
                             CONCURRENCY_ADJUSTER_ADDITIVE_INCREASE_LEADERSHIP_DOC)
+                    .define(CONCURRENCY_ADJUSTER_ADDITIVE_INCREASE_LEADERSHIP_PER_BROKER_CONFIG,
+                            ConfigDef.Type.INT,
+                            DEFAULT_CONCURRENCY_ADJUSTER_ADDITIVE_INCREASE_LEADERSHIP_PER_BROKER,
+                            atLeast(1),
+                            ConfigDef.Importance.LOW,
+                            CONCURRENCY_ADJUSTER_ADDITIVE_INCREASE_LEADERSHIP_PER_BROKER_DOC)
                     .define(CONCURRENCY_ADJUSTER_MULTIPLICATIVE_DECREASE_INTER_BROKER_REPLICA_CONFIG,
                             ConfigDef.Type.INT,
                             DEFAULT_CONCURRENCY_ADJUSTER_MULTIPLICATIVE_DECREASE_INTER_BROKER_REPLICA,
@@ -860,6 +958,18 @@ public final class ExecutorConfig {
                             atLeast(2),
                             ConfigDef.Importance.LOW,
                             CONCURRENCY_ADJUSTER_MULTIPLICATIVE_DECREASE_LEADERSHIP_DOC)
+                    .define(CONCURRENCY_ADJUSTER_MULTIPLICATIVE_DECREASE_LEADERSHIP_PER_BROKER_CONFIG,
+                            ConfigDef.Type.INT,
+                            DEFAULT_CONCURRENCY_ADJUSTER_MULTIPLICATIVE_DECREASE_LEADERSHIP_PER_BROKER,
+                            atLeast(2),
+                            ConfigDef.Importance.LOW,
+                            CONCURRENCY_ADJUSTER_MULTIPLICATIVE_DECREASE_LEADERSHIP_PER_BROKER_DOC)
+                    .define(MIN_NUM_BROKERS_VIOLATE_METRIC_LIMIT_TO_DECREASE_CLUSTER_CONCURRENCY_CONFIG,
+                            ConfigDef.Type.INT,
+                            DEFAULT_MIN_NUM_BROKERS_VIOLATE_METRIC_LIMIT_TO_DECREASE_CLUSTER_CONCURRENCY,
+                            atLeast(1),
+                            ConfigDef.Importance.LOW,
+                            MIN_NUM_BROKERS_VIOLATE_METRIC_LIMIT_TO_DECREASE_CLUSTER_CONCURRENCY_DOC)
                     .define(LIST_PARTITION_REASSIGNMENTS_TIMEOUT_MS_CONFIG,
                             ConfigDef.Type.LONG,
                             DEFAULT_LIST_PARTITION_REASSIGNMENTS_TIMEOUT_MS,

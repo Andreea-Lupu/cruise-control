@@ -6,12 +6,12 @@ package com.linkedin.kafka.cruisecontrol.executor;
 
 import com.linkedin.kafka.cruisecontrol.metricsreporter.CruiseControlMetricsUtils;
 import com.linkedin.kafka.cruisecontrol.model.ReplicaPlacementInfo;
-import kafka.log.LogConfig;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
 import org.apache.kafka.common.config.ConfigResource;
+import org.apache.kafka.server.config.QuotaConfigs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
@@ -37,10 +37,10 @@ import java.util.stream.Stream;
 class ReplicationThrottleHelper {
   private static final Logger LOG = LoggerFactory.getLogger(ReplicationThrottleHelper.class);
   static final String WILDCARD_ASTERISK = "*";
-  static final String LEADER_THROTTLED_RATE = "leader.replication.throttled.rate";
-  static final String FOLLOWER_THROTTLED_RATE = "follower.replication.throttled.rate";
-  static final String LEADER_THROTTLED_REPLICAS = LogConfig.LeaderReplicationThrottledReplicasProp();
-  static final String FOLLOWER_THROTTLED_REPLICAS = LogConfig.FollowerReplicationThrottledReplicasProp();
+  static final String LEADER_THROTTLED_RATE = QuotaConfigs.LEADER_REPLICATION_THROTTLED_RATE_CONFIG;
+  static final String FOLLOWER_THROTTLED_RATE = QuotaConfigs.FOLLOWER_REPLICATION_THROTTLED_RATE_CONFIG;
+  static final String LEADER_THROTTLED_REPLICAS = QuotaConfigs.LEADER_REPLICATION_THROTTLED_REPLICAS_CONFIG;
+  static final String FOLLOWER_THROTTLED_REPLICAS = QuotaConfigs.FOLLOWER_REPLICATION_THROTTLED_REPLICAS_CONFIG;
   public static final long CLIENT_REQUEST_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(30);
   static final int RETRIES = 30;
 
@@ -79,7 +79,7 @@ class ReplicationThrottleHelper {
       Set<Integer> participatingBrokers = getParticipatingBrokers(replicaMovementProposals);
       Map<String, Set<String>> throttledReplicas = getThrottledReplicasByTopic(replicaMovementProposals);
       for (int broker : participatingBrokers) {
-        setThrottledRateIfUnset(broker);
+        setThrottledRateIfNecessary(broker);
       }
       for (Map.Entry<String, Set<String>> entry : throttledReplicas.entrySet()) {
         setThrottledReplicas(entry.getKey(), entry.getValue());
@@ -177,7 +177,7 @@ class ReplicationThrottleHelper {
     return throttledReplicasByTopic;
   }
 
-  private void setThrottledRateIfUnset(int brokerId) throws ExecutionException, InterruptedException, TimeoutException {
+  private void setThrottledRateIfNecessary(int brokerId) throws ExecutionException, InterruptedException, TimeoutException {
     if (_throttleRate == null) {
       throw new IllegalStateException("Throttle rate cannot be null");
     }
@@ -185,12 +185,9 @@ class ReplicationThrottleHelper {
     List<AlterConfigOp> ops = new ArrayList<>();
     for (String replicaThrottleRateConfigKey : Arrays.asList(LEADER_THROTTLED_RATE, FOLLOWER_THROTTLED_RATE)) {
       ConfigEntry currThrottleRate = brokerConfigs.get(replicaThrottleRateConfigKey);
-      if (currThrottleRate == null) {
+      if (currThrottleRate == null || !currThrottleRate.value().equals(String.valueOf(_throttleRate))) {
         LOG.debug("Setting {} to {} bytes/second for broker {}", replicaThrottleRateConfigKey, _throttleRate, brokerId);
-       ops.add(new AlterConfigOp(new ConfigEntry(replicaThrottleRateConfigKey, String.valueOf(_throttleRate)), AlterConfigOp.OpType.SET));
-      } else {
-        LOG.debug("Not setting {} for broker {} because pre-existing throttle of {} was already set",
-                replicaThrottleRateConfigKey, brokerId, currThrottleRate);
+        ops.add(new AlterConfigOp(new ConfigEntry(replicaThrottleRateConfigKey, String.valueOf(_throttleRate)), AlterConfigOp.OpType.SET));
       }
     }
     if (!ops.isEmpty()) {
@@ -340,18 +337,18 @@ class ReplicationThrottleHelper {
     ConfigEntry currFollowerThrottle = brokerConfigs.get(FOLLOWER_THROTTLED_RATE);
     List<AlterConfigOp> ops = new ArrayList<>();
     if (currLeaderThrottle != null) {
-      if (currLeaderThrottle.value().equals(WILDCARD_ASTERISK)) {
-        LOG.debug("Existing config throttles all leader replicas. So, do not remove any leader replica throttle on broker {}", brokerId);
+      if (currLeaderThrottle.source().equals(ConfigEntry.ConfigSource.STATIC_BROKER_CONFIG)) {
+        LOG.debug("Skipping removal for static leader throttle rate: {}", currFollowerThrottle);
       } else {
-        LOG.debug("Removing leader throttle on broker {}", brokerId);
+        LOG.debug("Removing leader throttle rate: {} on broker {}", currLeaderThrottle, brokerId);
         ops.add(new AlterConfigOp(new ConfigEntry(LEADER_THROTTLED_RATE, null), AlterConfigOp.OpType.DELETE));
       }
     }
     if (currFollowerThrottle != null) {
-      if (currFollowerThrottle.value().equals(WILDCARD_ASTERISK)) {
-        LOG.debug("Existing config throttles all follower replicas. So, do not remove any follower replica throttle on broker {}", brokerId);
+      if (currFollowerThrottle.source().equals(ConfigEntry.ConfigSource.STATIC_BROKER_CONFIG)) {
+        LOG.debug("Skipping removal for static follower throttle rate: {}", currFollowerThrottle);
       } else {
-        LOG.debug("Removing follower throttle on broker {}", brokerId);
+        LOG.debug("Removing follower throttle rate: {} on broker {}", currFollowerThrottle, brokerId);
         ops.add(new AlterConfigOp(new ConfigEntry(FOLLOWER_THROTTLED_RATE, null), AlterConfigOp.OpType.DELETE));
       }
     }
@@ -384,6 +381,8 @@ class ReplicationThrottleHelper {
         if (entry.getValue() != null) {
           return false;
         }
+      } else if (configEntry.source().equals(ConfigEntry.ConfigSource.STATIC_BROKER_CONFIG) && entry.getValue() == null) {
+        LOG.debug("Found static broker config: {}, skipping comparison", configEntry);
       } else if (!Objects.equals(entry.getValue(), configEntry.value())) {
         return false;
       }

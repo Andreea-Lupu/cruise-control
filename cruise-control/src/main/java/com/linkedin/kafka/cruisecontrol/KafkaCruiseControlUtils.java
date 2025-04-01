@@ -11,6 +11,7 @@ import com.linkedin.kafka.cruisecontrol.config.KafkaCruiseControlConfig;
 import com.linkedin.kafka.cruisecontrol.config.constants.AnalyzerConfig;
 import com.linkedin.kafka.cruisecontrol.config.constants.ExecutorConfig;
 import com.linkedin.kafka.cruisecontrol.config.constants.WebServerConfig;
+import com.linkedin.kafka.cruisecontrol.exception.PartitionNotExistsException;
 import com.linkedin.kafka.cruisecontrol.exception.SamplingException;
 import com.linkedin.kafka.cruisecontrol.metricsreporter.CruiseControlMetricsUtils;
 import com.linkedin.kafka.cruisecontrol.metricsreporter.config.EnvConfigProvider;
@@ -51,6 +52,7 @@ import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.common.config.ConfigResource;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.config.SslConfigs;
+import org.apache.kafka.common.config.TopicConfig;
 import org.apache.kafka.common.errors.ReassignmentInProgressException;
 import org.apache.kafka.common.errors.TopicExistsException;
 import org.apache.kafka.common.message.MetadataResponseData;
@@ -84,8 +86,6 @@ import scala.Option;
 
 import static com.linkedin.kafka.cruisecontrol.config.constants.MonitorConfig.RECONNECT_BACKOFF_MS_CONFIG;
 import static com.linkedin.kafka.cruisecontrol.servlet.parameters.ParameterUtils.SKIP_HARD_GOAL_CHECK_PARAM;
-import static kafka.log.LogConfig.CleanupPolicyProp;
-import static kafka.log.LogConfig.RetentionMsProp;
 
 
 /**
@@ -247,8 +247,8 @@ public final class KafkaCruiseControlUtils {
 
     NewTopic newTopic = new NewTopic(topic, partitionCount, replicationFactor);
     Map<String, String> config = new HashMap<>();
-    config.put(RetentionMsProp(), Long.toString(retentionMs));
-    config.put(CleanupPolicyProp(), DEFAULT_CLEANUP_POLICY);
+    config.put(TopicConfig.RETENTION_MS_CONFIG, Long.toString(retentionMs));
+    config.put(TopicConfig.CLEANUP_POLICY_CONFIG, DEFAULT_CLEANUP_POLICY);
     newTopic.configs(config);
 
     return newTopic;
@@ -624,14 +624,27 @@ public final class KafkaCruiseControlUtils {
     KafkaZkClient kafkaZkClient = null;
     try {
       String zkClientName = String.format("%s-%s", metricGroup, metricType);
-      Method kafka31PlusMet = KafkaZkClient.class.getMethod("apply", String.class, boolean.class, int.class, int.class, int.class,
-                                                            org.apache.kafka.common.utils.Time.class, String.class, ZKClientConfig.class,
-                                                            String.class, String.class, boolean.class);
-      kafkaZkClient = (KafkaZkClient) kafka31PlusMet.invoke(null, connectString, zkSecurityEnabled, ZK_SESSION_TIMEOUT, ZK_CONNECTION_TIMEOUT,
-                                                            Integer.MAX_VALUE, new SystemTime(), zkClientName, zkClientConfig, metricGroup,
-                                                            metricType, false);
+      Method kafka38PlusMet = KafkaZkClient.class.getMethod("apply", String.class, boolean.class, int.class, int.class, int.class,
+              org.apache.kafka.common.utils.Time.class, String.class, ZKClientConfig.class,
+              String.class, String.class, boolean.class, boolean.class);
+      kafkaZkClient = (KafkaZkClient) kafka38PlusMet.invoke(null, connectString, zkSecurityEnabled, ZK_SESSION_TIMEOUT, ZK_CONNECTION_TIMEOUT,
+              Integer.MAX_VALUE, new SystemTime(), zkClientName, zkClientConfig, metricGroup,
+              metricType, false, true);
     } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-      LOG.debug("Unable to find apply method in KafkaZkClient for Kafka 3.1+.", e);
+      LOG.debug("Unable to find apply method in KafkaZkClient for Kafka 3.8+.", e);
+    }
+    if (kafkaZkClient == null) {
+      try {
+        String zkClientName = String.format("%s-%s", metricGroup, metricType);
+        Method kafka31PlusMet = KafkaZkClient.class.getMethod("apply", String.class, boolean.class, int.class, int.class, int.class,
+                org.apache.kafka.common.utils.Time.class, String.class, ZKClientConfig.class,
+                String.class, String.class, boolean.class);
+        kafkaZkClient = (KafkaZkClient) kafka31PlusMet.invoke(null, connectString, zkSecurityEnabled, ZK_SESSION_TIMEOUT, ZK_CONNECTION_TIMEOUT,
+                Integer.MAX_VALUE, new SystemTime(), zkClientName, zkClientConfig, metricGroup,
+                metricType, false);
+      } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+        LOG.debug("Unable to find apply method in KafkaZkClient for Kafka 3.1+.", e);
+      }
     }
     if (kafkaZkClient == null) {
       try {
@@ -714,6 +727,7 @@ public final class KafkaCruiseControlUtils {
       setClassConfigIfExists(configs, adminClientConfigs, SaslConfigs.SASL_LOGIN_CALLBACK_HANDLER_CLASS);
       setClassConfigIfExists(configs, adminClientConfigs, SaslConfigs.SASL_CLIENT_CALLBACK_HANDLER_CLASS);
       setPasswordConfigIfExists(configs, adminClientConfigs, SaslConfigs.SASL_JAAS_CONFIG);
+      setStringConfigIfExists(configs, adminClientConfigs, SaslConfigs.SASL_OAUTHBEARER_TOKEN_ENDPOINT_URL);
 
       // Configure SSL configs (if security protocol is SSL or SASL_SSL)
       if (securityProtocol.equals(SecurityProtocol.SSL.name) || securityProtocol.equals(SecurityProtocol.SASL_SSL.name)) {
@@ -861,8 +875,12 @@ public final class KafkaCruiseControlUtils {
    * @param tp The topic partition to check.
    * @return {@code true} if the partition is currently under replicated.
    */
-  public static boolean isPartitionUnderReplicated(Cluster cluster, TopicPartition tp) {
+  public static boolean isPartitionUnderReplicated(Cluster cluster, TopicPartition tp) throws
+                                                                                       PartitionNotExistsException {
     PartitionInfo partitionInfo = cluster.partition(tp);
+    if (partitionInfo == null) {
+      throw new PartitionNotExistsException("Partition " + tp + " does not exist.");
+    }
     return partitionInfo.inSyncReplicas().length != partitionInfo.replicas().length;
   }
 
@@ -981,6 +999,7 @@ public final class KafkaCruiseControlUtils {
     consumerProps.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializer.getName());
     consumerProps.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializer.getName());
     consumerProps.setProperty(ConsumerConfig.RECONNECT_BACKOFF_MS_CONFIG, configs.get(RECONNECT_BACKOFF_MS_CONFIG).toString());
+    consumerProps.setProperty(ConsumerConfig.ALLOW_AUTO_CREATE_TOPICS_CONFIG, "false");
     return new KafkaConsumer<>(consumerProps);
   }
 
